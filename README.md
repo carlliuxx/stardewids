@@ -12,6 +12,7 @@
 
 - ✅ 修复了 gradlew 文件的 JVM 参数错误
 - ✅ 包含了必需的 gradle-wrapper.jar
+- ✅ 修复了应用打开后空白的问题（使用完整独立版 HTML）
 
 ## 构建触发方式
 
@@ -23,3 +24,4 @@
 如需签名版本，请参考 `android-apk/SIGNING_SETUP.md` 配置 GitHub Secrets。
 
 详细使用说明请查看 `UPLOAD_GUIDE.md`。
+更新历史请查看 `UPDATE_NOTES.md`。
