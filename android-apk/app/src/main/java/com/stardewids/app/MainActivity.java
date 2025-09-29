@@ -48,6 +48,9 @@ public class MainActivity extends Activity {
         // 隐藏滚动条
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
+        // 禁用过度滚动效果
+        webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+
         // 加载本地 HTML 文件
         webView.loadUrl("file:///android_asset/www/index.html");
     }
