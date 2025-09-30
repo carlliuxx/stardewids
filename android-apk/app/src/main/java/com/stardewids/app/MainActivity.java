@@ -7,7 +7,9 @@ import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.ConsoleMessage;
 import android.webkit.WebViewClient;
+import android.util.Log;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -27,6 +29,8 @@ public class MainActivity extends Activity {
         webSettings.setDomStorageEnabled(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setAllowContentAccess(true);
+        webSettings.setAllowFileAccessFromFileURLs(true);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
         webSettings.setBuiltInZoomControls(false);
@@ -53,12 +57,26 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // 页面加载完成后可以添加调试信息
+                Log.d("WebView", "Page loaded: " + url);
+            }
+
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Log.e("WebView", "Error loading page: " + description);
+                view.loadData("<html><body><h2>加载错误</h2><p>" + description + "</p></body></html>", "text/html; charset=UTF-8", null);
             }
         });
 
         // 设置 Chrome 客户端以支持 JavaScript 弹窗等
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Log.d("WebView", consoleMessage.message() + " -- From line "
+                        + consoleMessage.lineNumber() + " of "
+                        + consoleMessage.sourceId());
+                return super.onConsoleMessage(consoleMessage);
+            }
+        });
 
         // 隐藏滚动条
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
