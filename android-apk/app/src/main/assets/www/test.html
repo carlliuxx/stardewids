@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebView 测试页面</h1>
+    <p>如果你能看到这个页面，说明 WebView 基本功能正常。</p>
+
+    <button onclick="testJS()">测试 JavaScript</button>
+    <button onclick="testAlert()">测试弹窗</button>
+
+    <div id="message">点击按钮测试功能</div>
+
+    <script>
+        function testJS() {
+            document.getElementById('message').innerHTML = 'JavaScript 运行正常！时间：' + new Date().toLocaleString();
+        }
+
+        function testAlert() {
+            alert('弹窗功能正常！');
+        }
+
+        // 页面加载完成后的测试
+        window.onload = function() {
+            console.log('页面加载完成');
+            document.getElementById('message').innerHTML = '页面加载完成于：' + new Date().toLocaleString();
+        };
+    </script>
+</body>
+</html>

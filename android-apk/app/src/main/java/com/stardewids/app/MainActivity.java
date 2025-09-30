@@ -33,12 +33,27 @@ public class MainActivity extends Activity {
         webSettings.setDisplayZoomControls(false);
         webSettings.setSupportZoom(false);
 
+        // 允许混合内容（HTTP 和 HTTPS）
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
+
+        // 设置更大的缓存
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setDatabaseEnabled(true);
+
         // 设置 WebView 客户端
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 // 保持在 WebView 内加载
                 return false;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // 页面加载完成后可以添加调试信息
             }
         });
 
@@ -47,6 +62,9 @@ public class MainActivity extends Activity {
 
         // 隐藏滚动条
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+
+        // 禁用过度滚动效果
+        webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         // 加载本地 HTML 文件
         webView.loadUrl("file:///android_asset/www/index.html");
