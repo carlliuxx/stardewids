@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>星露谷物语物品代码修改器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c5530;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .info {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .tab-button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .tab-button.active {
+            background: #2c5530;
+            color: white;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .item-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .item-card:hover {
+            background: #f0f0f0;
+        }
+
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .item-code {
+            color: #666;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .close-button {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .copy-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #2c5530;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>星露谷物语物品代码修改器</h1>
+        <p class="info">通过向玛妮购买小鸡等动物时在命名界面粘贴生成的代码，即可获得想要的物品</p>
+
+        <input type="text" class="search-box" placeholder="搜索物品..." id="searchInput">
+
+        <div class="category-tabs" id="categoryTabs">
+            <button class="tab-button active" data-category="objects">物品</button>
+            <button class="tab-button" data-category="tools">工具</button>
+            <button class="tab-button" data-category="weapons">武器</button>
+            <button class="tab-button" data-category="furniture">家具</button>
+        </div>
+
+        <div id="itemsContainer" class="items-grid">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+
+    <div class="modal" id="itemModal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h3 id="modalItemName"></h3>
+            <p>物品代码: <code id="modalItemCode"></code></p>
+            <p>数量: <input type="number" id="quantityInput" value="1" min="1" max="999" style="width: 80px;"></p>
+            <button class="copy-button" onclick="copyCode()">复制代码</button>
+        </div>
+    </div>
+
+    <script>
+        // 简化的物品数据
+        const itemsData = {
+            objects: [
+                {id: 74, name: "原始铱矿"},
+                {id: 386, name: "铱矿石"},
+                {id: 337, name: "铱锭"},
+                {id: 72, name: "钻石"},
+                {id: 417, name: "甜莓宝石"},
+                {id: 499, name: "远古种子"},
+                {id: 628, name: "樱桃炸弹"},
+                {id: 773, name: "生命药水"},
+                {id: 245, name: "南瓜"},
+                {id: 276, name: "南瓜种子"}
+            ],
+            tools: [
+                {id: 5, name: "铱金镐"},
+                {id: 9, name: "铱金斧头"},
+                {id: 15, name: "铱金锄头"},
+                {id: 19, name: "铱金浇水壶"},
+                {id: 296, name: "铱金鱼竿"}
+            ],
+            weapons: [
+                {id: 4, name: "银河剑"},
+                {id: 23, name: "银河匕首"},
+                {id: 29, name: "银河锤"},
+                {id: 52, name: "骨剑"}
+            ],
+            furniture: [
+                {id: 1226, name: "电视机"},
+                {id: 1468, name: "沙发"},
+                {id: 1614, name: "床"}
+            ]
+        };
+
+        let currentCategory = 'objects';
+        let allItems = [];
+
+        // 初始化
+        function init() {
+            loadItems();
+            setupEventListeners();
+        }
+
+        // 加载物品
+        function loadItems() {
+            allItems = itemsData[currentCategory] || [];
+            displayItems(allItems);
+        }
+
+        // 显示物品
+        function displayItems(items) {
+            const container = document.getElementById('itemsContainer');
+            if (items.length === 0) {
+                container.innerHTML = '<div class="loading">没有找到物品</div>';
+                return;
+            }
+
+            container.innerHTML = items.map(item => `
+                <div class="item-card" onclick="showItemDetails(${item.id}, '${item.name}')">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-code">[${item.id}]</div>
+                </div>
+            `).join('');
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 分类切换
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategory = this.dataset.category;
+                    loadItems();
+                });
+            });
+
+            // 搜索
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filteredItems = allItems.filter(item =>
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.id.toString().includes(searchTerm)
+                );
+                displayItems(filteredItems);
+            });
+        }
+
+        // 显示物品详情
+        function showItemDetails(id, name) {
+            document.getElementById('modalItemName').textContent = name;
+            document.getElementById('modalItemCode').textContent = '[' + id + ']';
+            document.getElementById('quantityInput').value = 1;
+            document.getElementById('itemModal').style.display = 'block';
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('itemModal').style.display = 'none';
+        }
+
+        // 复制代码
+        function copyCode() {
+            const id = document.getElementById('modalItemCode').textContent;
+            const quantity = document.getElementById('quantityInput').value;
+            const code = id.repeat(parseInt(quantity));
+
+            // 创建临时文本框复制
+            const tempInput = document.createElement('input');
+            tempInput.value = code;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            alert('已复制: ' + code);
+            closeModal();
+        }
+
+        // 启动应用
+        init();
+    </script>
+</body>
+</html>

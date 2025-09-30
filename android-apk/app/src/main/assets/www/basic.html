@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础测试</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #333;
+        }
+        .test-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebView 测试</h1>
+    <p>如果你能看到这个页面，说明 WebView 正在工作。</p>
+    <button class="test-button" onclick="alert('JavaScript 正常工作！')">测试 JavaScript</button>
+    <p>当前时间: <span id="time"></span></p>
+
+    <script>
+        document.getElementById('time').innerHTML = new Date().toLocaleString();
+        console.log('页面加载完成');
+    </script>
+</body>
+</html>
