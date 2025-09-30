@@ -4,12 +4,12 @@ on:
   push:
     branches: [ main, master ]
     paths:
-      - 'android-apk/**'
+      - 'android-webview/**'
       - '.github/workflows/build-apk.yml'
   pull_request:
     branches: [ main, master ]
     paths:
-      - 'android-apk/**'
+      - 'android-webview/**'
   workflow_dispatch:
 
 jobs:
@@ -29,30 +29,35 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Copy HTML file to assets
+      run: |
+        mkdir -p android-webview/app/src/main/assets
+        cp stardew-item-ids.html android-webview/app/src/main/assets/
+
     - name: Grant execute permission for gradlew
-      run: chmod +x android-apk/gradlew
+      run: chmod +x android-webview/gradlew
 
     - name: Build Debug APK
       run: |
-        cd android-apk
+        cd android-webview
         ./gradlew assembleDebug
 
     - name: Build Release APK
       run: |
-        cd android-apk
+        cd android-webview
         ./gradlew assembleRelease
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
-        path: android-apk/app/build/outputs/apk/debug/app-debug.apk
+        path: android-webview/app/build/outputs/apk/debug/app-debug.apk
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
       with:
         name: app-release-unsigned
-        path: android-apk/app/build/outputs/apk/release/app-release-unsigned.apk
+        path: android-webview/app/build/outputs/apk/release/app-release-unsigned.apk
 
     # 为标签创建发布版本
     - name: Create Release
@@ -60,8 +65,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          android-apk/app/build/outputs/apk/debug/app-debug.apk
-          android-apk/app/build/outputs/apk/release/app-release-unsigned.apk
+          android-webview/app/build/outputs/apk/debug/app-debug.apk
+          android-webview/app/build/outputs/apk/release/app-release-unsigned.apk
         draft: false
         prerelease: false
       env:
