@@ -1,0 +1,93 @@
+name: Build Web Version
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'scripts/**'
+      - 'categories.json'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/build-web.yml'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Update item list
+      run: npm run update-item-list
+
+    - name: Build static files
+      run: npm run build
+
+    - name: Create standalone HTML versions
+      run: |
+        # 生成各种独立版本
+        python3 generate_standalone.py
+        python3 generate_complete_standalone.py
+        python3 fix_standalone.py
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-build
+        path: |
+          dist/
+          public/
+          *.html
+          !node_modules/
+          !test*.html
+          !debug*.html
+
+    - name: Deploy to GitHub Pages
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        exclude_assets: '.github,node_modules,scripts,src,android-apk,windows-exe-release,standalone-*,.git*'
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: web-build
+
+    - name: Create ZIP archive
+      run: |
+        zip -r stardew-ids-web.zip dist/ public/ *.html -x "test*.html" "debug*.html"
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          stardew-ids-web.zip
+          星露谷物语物品代码修改器*.html
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
