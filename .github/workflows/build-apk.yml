@@ -4,12 +4,14 @@ on:
   push:
     branches: [ main, master ]
     paths:
-      - 'android-webview/**'
+      - 'android/**'
       - '.github/workflows/build-apk.yml'
+      - 'stardew-item-ids.html'
+      - 'public/**'
   pull_request:
     branches: [ main, master ]
     paths:
-      - 'android-webview/**'
+      - 'android/**'
   workflow_dispatch:
 
 jobs:
@@ -29,35 +31,36 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Copy HTML file to assets
+    - name: Copy HTML and assets to Android project
       run: |
-        mkdir -p android-webview/app/src/main/assets
-        cp stardew-item-ids.html android-webview/app/src/main/assets/
+        mkdir -p android/app/src/main/assets/www
+        cp stardew-item-ids.html android/app/src/main/assets/www/index.html
+        cp -r public android/app/src/main/assets/www/
 
     - name: Grant execute permission for gradlew
-      run: chmod +x android-webview/gradlew
+      run: chmod +x android/gradlew
 
     - name: Build Debug APK
       run: |
-        cd android-webview
+        cd android
         ./gradlew assembleDebug
 
     - name: Build Release APK
       run: |
-        cd android-webview
+        cd android
         ./gradlew assembleRelease
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
-        path: android-webview/app/build/outputs/apk/debug/app-debug.apk
+        path: android/app/build/outputs/apk/debug/app-debug.apk
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
       with:
         name: app-release-unsigned
-        path: android-webview/app/build/outputs/apk/release/app-release-unsigned.apk
+        path: android/app/build/outputs/apk/release/app-release-unsigned.apk
 
     # 为标签创建发布版本
     - name: Create Release
@@ -65,8 +68,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          android-webview/app/build/outputs/apk/debug/app-debug.apk
-          android-webview/app/build/outputs/apk/release/app-release-unsigned.apk
+          android/app/build/outputs/apk/debug/app-debug.apk
+          android/app/build/outputs/apk/release/app-release-unsigned.apk
         draft: false
         prerelease: false
       env:
