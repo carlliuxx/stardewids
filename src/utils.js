@@ -129,14 +129,14 @@ function getIdForPasteMode(id, quantity) {
   if (debug) return `/item ${id.replace(/[\[\]]/g, "")} ${quantity} ${quality}`;
 
   return mode === "chicken"
-    ? `#$action AddItem ${id.replace(/[\[\]]/g, "")} ${quantity} ${quality}`
+    ? id
     : id;
 }
 
 function removeFromBatch(id) {
   batch = batch.filter(
     (item) =>
-      item !== id && !item.includes(`AddItem ${id.replace(/[\[\]]/g, "")}`)
+      item !== id
   );
   return batch;
 }
