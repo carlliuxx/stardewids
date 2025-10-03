@@ -19,6 +19,22 @@ body {
 }
 
 /* 禁用整个页面的弹性滚动效果 */
+html {
+    position: fixed;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: auto;
+}
+
 html, body {
     overscroll-behavior: none;
 }
@@ -1299,6 +1315,7 @@ function saveItemConfiguration(quantity, quality) {
 // 更新已配置物品数量显示
 function updateConfiguredCount() {
     const count = configuredItems.size;
+    console.log('updateConfiguredCount called, count:', count);
 
     const countSpan = document.getElementById('configuredCount');
     if (countSpan) {
@@ -1312,6 +1329,8 @@ function updateConfiguredCount() {
 
     // 当选择超过3个物品时显示提示
     if (count === 4) {  // 恰好第4个物品时提示
+        console.log('Showing 4th item warning');
+        alert('⚠️ 注意：向玛妮购买小鸡等动物时在命名界面粘贴生成的代码最多3个');
         showToast('⚠️ 注意：向玛妮购买小鸡等动物时在命名界面粘贴生成的代码最多3个');
     }
 }
@@ -1420,11 +1439,13 @@ function removeConfiguredItem(key) {
 }
 
 function clearAllConfigurations() {
+    console.log('clearAllConfigurations called, current items:', configuredItems.size);
+    alert('clearAllConfigurations function called with ' + configuredItems.size + ' items');
     if (configuredItems.size === 0) {
         showToast('没有需要清空的配置');
         return;
     }
-    
+
     if (confirm(`确定要清空所有 ${configuredItems.size} 个已选择的物品配置吗？`)) {
         configuredItems.clear();
         updateConfiguredItemsList();
@@ -1610,7 +1631,33 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('页面加载完成，开始初始化...');
     console.log('数据验证: 总共有', Object.keys(allData).length, '个分类');
     console.log('分类列表:', Object.keys(allData));
-    
+
+    // 禁用橡皮筋效果
+    document.body.addEventListener('touchmove', function(e) {
+        if (e.target === document.body) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    // 防止整个文档的默认滚动行为
+    document.addEventListener('touchmove', function(e) {
+        const target = e.target;
+        let scrollableParent = target;
+
+        // 查找可滚动的父元素
+        while (scrollableParent && scrollableParent !== document.body) {
+            const style = window.getComputedStyle(scrollableParent);
+            if (style.overflow === 'auto' || style.overflow === 'scroll' ||
+                style.overflowY === 'auto' || style.overflowY === 'scroll') {
+                return; // 允许滚动
+            }
+            scrollableParent = scrollableParent.parentElement;
+        }
+
+        // 如果没有找到可滚动的元素，阻止默认行为
+        e.preventDefault();
+    }, { passive: false });
+
     try {
         // 设置事件监听器
         document.querySelectorAll('#categoryTabs .nav-link').forEach(link => {
