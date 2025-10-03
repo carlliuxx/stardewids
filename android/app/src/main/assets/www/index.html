@@ -1311,7 +1311,7 @@ function updateConfiguredCount() {
     }
 
     // 当选择超过3个物品时显示提示
-    if (count > 3) {
+    if (count === 4) {  // 恰好第4个物品时提示
         showToast('⚠️ 注意：向玛妮购买小鸡等动物时在命名界面粘贴生成的代码最多3个');
     }
 }
@@ -1495,8 +1495,7 @@ function canItemStack(category, item) {
     // 不可堆叠的分类
     const nonStackableCategories = [
         'tools', 'weapons', 'boots', 'hats', 'furniture',
-        'mannequins', 'flooring', 'wallpaper', 'rings',
-        'pants', 'shirts', 'trinkets'
+        'mannequins', 'flooring', 'wallpaper', 'pants', 'shirts'
     ];
 
     if (nonStackableCategories.includes(category)) {
@@ -1512,7 +1511,7 @@ function canItemStack(category, item) {
             return false;
         }
 
-        // 钓具关键词 - 扩展列表
+        // 钓具关键词 - 扩展列表，包括倒刺钩
         const tackleKeywords = [
             '浮标', '浮漂', '鱼饵', '钩', '钓具', '倒刺钩',
             'bobber', 'tackle', 'bait', 'hook', 'lure', 'barbed hook',
@@ -1528,28 +1527,8 @@ function canItemStack(category, item) {
             return false;
         }
 
-        // 任务物品
-        if (objectType === 'Quest') {
-            return false;
-        }
-
-        // 特殊物品类型
-        const specialTypes = ['Artifact', 'Minerals', 'Arch'];
-        if (specialTypes.includes(objectType)) {
-            return false;
-        }
-    }
-
-    // 大型手工制品中的某些物品也不能堆叠
-    if (category === 'big-craftables') {
-        const itemName = getItemName(item);
-        const nonStackableBigCraftables = [
-            '雕像', '图腾', 'statue', 'totem', '稻草人', 'scarecrow'
-        ];
-        const isNonStackable = nonStackableBigCraftables.some(keyword =>
-            itemName.toLowerCase().includes(keyword.toLowerCase())
-        );
-        if (isNonStackable) {
+        // 任务物品和古物不可堆叠
+        if (objectType === 'Quest' || objectType === 'Artifact' || objectType === 'Arch') {
             return false;
         }
     }
