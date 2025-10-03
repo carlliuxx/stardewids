@@ -12,6 +12,21 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
     color: #333;
+    /* 禁用滑动橡皮筋效果 */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+}
+
+/* 禁用整个页面的弹性滚动效果 */
+html, body {
+    overscroll-behavior: none;
+}
+
+/* 禁用iOS的橡皮筋效果 */
+* {
+    -webkit-overflow-scrolling: touch;
+    -webkit-touch-callout: none;
 }
 
 /* 搜索隐藏样式 - 高性能版本 */
