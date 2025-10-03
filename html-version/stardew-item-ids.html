@@ -1538,7 +1538,8 @@ function showToast(message) {
     if (toast) {
         const toastBody = toast.querySelector('.toast-body');
         if (toastBody) {
-            toastBody.textContent = message;
+            // 将换行符转换为 <br> 标签
+            toastBody.innerHTML = message.replace(/\n/g, '<br>');
         }
         const bsToast = new bootstrap.Toast(toast);
         bsToast.show();
