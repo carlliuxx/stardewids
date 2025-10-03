@@ -22,45 +22,53 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Copy HTML file to assets
+      run: |
+        mkdir -p android-webview/app/src/main/assets
+        cp stardew-item-ids.html android-webview/app/src/main/assets/
+
     - name: Grant execute permission for gradlew
-      run: chmod +x android-apk/gradlew
+      run: chmod +x android-webview/gradlew
 
     - name: Build Release APK
       run: |
-        cd android-apk
+        cd android-webview
         ./gradlew assembleRelease
 
     - name: Sign APK
-      if: ${{ secrets.ANDROID_KEYSTORE }}
       uses: r0adkll/sign-android-release@v1
+      if: env.ANDROID_KEYSTORE != ''
       with:
-        releaseDirectory: android-apk/app/build/outputs/apk/release
+        releaseDirectory: android-webview/app/build/outputs/apk/release
         signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE }}
         alias: ${{ secrets.ANDROID_KEY_ALIAS }}
         keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
       env:
         BUILD_TOOLS_VERSION: "34.0.0"
+        ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
 
     - name: Rename signed APK
-      if: ${{ secrets.ANDROID_KEYSTORE }}
+      if: env.ANDROID_KEYSTORE != ''
       run: |
-        mv android-apk/app/build/outputs/apk/release/*-signed.apk android-apk/app/build/outputs/apk/release/stardew-ids.apk
+        mv android-webview/app/build/outputs/apk/release/*-signed.apk android-webview/app/build/outputs/apk/release/stardew-ids.apk
+      env:
+        ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
 
     - name: Upload Signed APK
       uses: actions/upload-artifact@v4
       with:
         name: stardew-ids-signed
         path: |
-          android-apk/app/build/outputs/apk/release/stardew-ids.apk
-          android-apk/app/build/outputs/apk/release/app-release-unsigned.apk
+          android-webview/app/build/outputs/apk/release/stardew-ids.apk
+          android-webview/app/build/outputs/apk/release/app-release-unsigned.apk
 
     - name: Create Release
       if: github.event_name == 'release'
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          android-apk/app/build/outputs/apk/release/stardew-ids.apk
-          android-apk/app/build/outputs/apk/release/app-release-unsigned.apk
+          android-webview/app/build/outputs/apk/release/stardew-ids.apk
+          android-webview/app/build/outputs/apk/release/app-release-unsigned.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
