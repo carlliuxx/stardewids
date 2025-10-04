@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商店截图模板 - 星露谷物语物品代码查询器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .screenshot-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        /* 手机截图尺寸 */
+        .phone-screenshot {
+            width: 1080px;
+            height: 1920px;
+            position: relative;
+        }
+
+        /* 平板截图尺寸 */
+        .tablet-screenshot {
+            width: 1600px;
+            height: 2560px;
+            position: relative;
+        }
+
+        /* 功能图尺寸 */
+        .feature-graphic {
+            width: 1024px;
+            height: 500px;
+            position: relative;
+            background: linear-gradient(135deg, #228B22 0%, #32CD32 100%);
+        }
+
+        /* 截图标题栏 */
+        .screenshot-header {
+            background: linear-gradient(135deg, #228B22 0%, #32CD32 100%);
+            color: white;
+            padding: 60px;
+            text-align: center;
+        }
+
+        .screenshot-header h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .screenshot-header p {
+            font-size: 24px;
+            opacity: 0.9;
+        }
+
+        /* 功能展示区 */
+        .feature-showcase {
+            display: flex;
+            justify-content: space-around;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .feature-item {
+            text-align: center;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: #FFD700;
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .feature-desc {
+            font-size: 18px;
+            color: #666;
+        }
+
+        /* 应用界面模拟 */
+        .app-mockup {
+            padding: 40px;
+            background: white;
+        }
+
+        .mockup-statusbar {
+            height: 40px;
+            background: #000;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+        }
+
+        .mockup-content {
+            background: #f8f9fa;
+            min-height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .search-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .item-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-icon {
+            width: 48px;
+            height: 48px;
+            background: #FFD700;
+            margin: 0 auto 10px;
+            border-radius: 8px;
+        }
+
+        .item-name {
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* 功能图样式 */
+        .feature-graphic-content {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 0 80px;
+            color: white;
+        }
+
+        .feature-left {
+            flex: 1;
+        }
+
+        .feature-left h1 {
+            font-size: 56px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-left p {
+            font-size: 24px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .feature-highlights {
+            display: flex;
+            gap: 30px;
+        }
+
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+        }
+
+        .highlight-icon {
+            font-size: 24px;
+        }
+
+        .feature-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .phone-mockup {
+            width: 300px;
+            height: 400px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+        }
+
+        .phone-screen {
+            background: #f8f9fa;
+            height: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        /* 底部说明 */
+        .screenshot-footer {
+            background: #333;
+            color: white;
+            padding: 40px;
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 功能图模板 -->
+    <div class="screenshot-container feature-graphic">
+        <div class="feature-graphic-content">
+            <div class="feature-left">
+                <h1>星露谷物语<br>物品代码查询器</h1>
+                <p>2446个物品 · 即时搜索 · 离线使用</p>
+                <div class="feature-highlights">
+                    <div class="highlight-item">
+                        <span class="highlight-icon">🔍</span>
+                        <span>快速搜索</span>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">📱</span>
+                        <span>完美适配</span>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">🌍</span>
+                        <span>12种语言</span>
+                    </div>
+                </div>
+            </div>
+            <div class="feature-right">
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <!-- 简化的应用界面 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手机截图模板1 - 主界面 -->
+    <div class="screenshot-container phone-screenshot">
+        <div class="screenshot-header">
+            <h1>完整的物品数据库</h1>
+            <p>收录游戏中所有2446个物品</p>
+        </div>
+        <div class="app-mockup">
+            <div class="mockup-statusbar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="mockup-content">
+                <div class="search-bar">🔍 搜索物品名称或ID...</div>
+                <div class="item-grid">
+                    <!-- 示例物品 -->
+                    <div class="item-card">
+                        <div class="item-icon"></div>
+                        <div class="item-name">防风草</div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon"></div>
+                        <div class="item-name">土豆</div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon"></div>
+                        <div class="item-name">钻石</div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon"></div>
+                        <div class="item-name">铱锭</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手机截图模板2 - 搜索功能 -->
+    <div class="screenshot-container phone-screenshot">
+        <div class="screenshot-header">
+            <h1>强大的搜索功能</h1>
+            <p>支持中英文等12种语言即时搜索</p>
+        </div>
+        <div class="feature-showcase">
+            <div class="feature-item">
+                <div class="feature-icon">🔍</div>
+                <div class="feature-title">即时搜索</div>
+                <div class="feature-desc">输入即显示结果</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🌍</div>
+                <div class="feature-title">多语言支持</div>
+                <div class="feature-desc">12种语言随心切换</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">极速响应</div>
+                <div class="feature-desc">毫秒级搜索体验</div>
+            </div>
+        </div>
+        <div class="app-mockup">
+            <!-- 搜索演示内容 -->
+        </div>
+    </div>
+
+    <!-- 平板截图模板 -->
+    <div class="screenshot-container tablet-screenshot">
+        <div class="screenshot-header">
+            <h1>平板完美适配</h1>
+            <p>充分利用大屏幕，展示更多内容</p>
+        </div>
+        <div class="app-mockup">
+            <!-- 平板布局内容 -->
+        </div>
+        <div class="screenshot-footer">
+            星露谷玩家必备工具 · 完全免费 · 无广告
+        </div>
+    </div>
+
+    <script>
+        // 可以添加一些动态效果
+        console.log('截图模板已加载');
+    </script>
+</body>
+</html>
