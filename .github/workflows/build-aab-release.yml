@@ -51,7 +51,7 @@ jobs:
 
     - name: Sign AAB
       uses: r0adkll/sign-android-release@v1
-      if: env.ANDROID_KEYSTORE != ''
+      if: ${{ secrets.ANDROID_KEYSTORE != '' }}
       with:
         releaseDirectory: android/app/build/outputs/bundle/release
         signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE }}
@@ -60,14 +60,11 @@ jobs:
         keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
       env:
         BUILD_TOOLS_VERSION: "35.0.0"
-        ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
 
     - name: Rename signed AAB
-      if: env.ANDROID_KEYSTORE != ''
+      if: ${{ secrets.ANDROID_KEYSTORE != '' }}
       run: |
         mv android/app/build/outputs/bundle/release/app-release.aab android/app/build/outputs/bundle/release/stardew-ids-v${{ github.event.inputs.versionName }}.aab
-      env:
-        ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
 
     - name: Upload AAB
       uses: actions/upload-artifact@v4
