@@ -36,32 +36,24 @@ jobs:
         ./gradlew assembleRelease
 
     - name: Sign APK
-      if: ${{ secrets.ANDROID_KEYSTORE != '' }}
-      run: |
-        echo ${{ secrets.ANDROID_KEYSTORE }} | base64 -d > keystore.jks
-
-        # Find the APK file
-        APK_FILE=$(find android-webview/app/build/outputs/apk/release -name "*.apk" -type f | head -1)
-
-        # Sign the APK using apksigner
-        $ANDROID_HOME/build-tools/35.0.0/apksigner sign \
-          --ks keystore.jks \
-          --ks-pass pass:${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
-          --ks-key-alias ${{ secrets.ANDROID_KEY_ALIAS }} \
-          --key-pass pass:${{ secrets.ANDROID_KEY_PASSWORD }} \
-          --out android-webview/app/build/outputs/apk/release/app-release-signed.apk \
-          $APK_FILE
-
-        # Verify the signature
-        $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose android-webview/app/build/outputs/apk/release/app-release-signed.apk
-
-        # Clean up
-        rm keystore.jks
+      uses: r0adkll/sign-android-release@v1
+      if: ${{ env.ANDROID_KEYSTORE != '' }}
+      with:
+        releaseDirectory: android-webview/app/build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE }}
+        alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      env:
+        BUILD_TOOLS_VERSION: "35.0.0"
+        ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
 
     - name: Rename signed APK
-      if: ${{ secrets.ANDROID_KEYSTORE != '' }}
+      if: ${{ env.ANDROID_KEYSTORE != '' }}
+      env:
+        ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
       run: |
-        mv android-webview/app/build/outputs/apk/release/app-release-signed.apk android-webview/app/build/outputs/apk/release/stardew-ids.apk
+        mv android-webview/app/build/outputs/apk/release/*-signed.apk android-webview/app/build/outputs/apk/release/stardew-ids.apk
 
     - name: Upload Signed APK
       uses: actions/upload-artifact@v4
