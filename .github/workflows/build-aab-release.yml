@@ -1,0 +1,91 @@
+name: Build Release AAB for Google Play
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: 'Version name (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+      versionCode:
+        description: 'Version code (integer)'
+        required: true
+        default: '1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Copy HTML and assets to Android project
+      run: |
+        mkdir -p android/app/src/main/assets/www
+        cp stardew-item-ids.html android/app/src/main/assets/www/index.html
+        cp -r public android/app/src/main/assets/www/
+
+    - name: Update version in build.gradle
+      run: |
+        cd android/app
+        sed -i "s/versionCode [0-9]*/versionCode ${{ github.event.inputs.versionCode }}/" build.gradle
+        sed -i "s/versionName \"[^\"]*\"/versionName \"${{ github.event.inputs.versionName }}\"/" build.gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x android/gradlew
+
+    - name: Build Release AAB
+      run: |
+        cd android
+        ./gradlew bundleRelease
+
+    - name: Sign AAB
+      uses: r0adkll/sign-android-release@v1
+      if: env.ANDROID_KEYSTORE != ''
+      with:
+        releaseDirectory: android/app/build/outputs/bundle/release
+        signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE }}
+        alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      env:
+        BUILD_TOOLS_VERSION: "34.0.0"
+        ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+
+    - name: Rename signed AAB
+      if: env.ANDROID_KEYSTORE != ''
+      run: |
+        mv android/app/build/outputs/bundle/release/app-release.aab android/app/build/outputs/bundle/release/stardew-ids-v${{ github.event.inputs.versionName }}.aab
+      env:
+        ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+
+    - name: Upload AAB
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-aab-v${{ github.event.inputs.versionName }}
+        path: android/app/build/outputs/bundle/release/*.aab
+
+    - name: Create metadata for Play Store
+      run: |
+        echo "Version Name: ${{ github.event.inputs.versionName }}" > release-notes.txt
+        echo "Version Code: ${{ github.event.inputs.versionCode }}" >> release-notes.txt
+        echo "Build Date: $(date)" >> release-notes.txt
+        echo "" >> release-notes.txt
+        echo "Release Notes:" >> release-notes.txt
+        echo "- Update your release notes here" >> release-notes.txt
+
+    - name: Upload metadata
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-metadata
+        path: release-notes.txt
