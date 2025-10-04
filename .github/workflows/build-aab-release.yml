@@ -6,11 +6,11 @@ on:
       versionName:
         description: 'Version name (e.g., 1.0.0)'
         required: true
-        default: '1.0.0'
+        default: '1.0.1'
       versionCode:
         description: 'Version code (integer)'
         required: true
-        default: '1'
+        default: '2'
 
 jobs:
   build:
